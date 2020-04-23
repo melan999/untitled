@@ -1,47 +1,19 @@
 package com.company;
 
 import java.util.Scanner;
-import java.util.TreeMap;
 
-public class Main {
+public class Calc {
 
     private boolean isRome = false;
     private String input = "";
-    private final static TreeMap<Integer, String> map = new TreeMap<>();
+    private RomeConverter romeConverter = new RomeConverter();
 
-    public static void main(String[] args) {
-        map.put(100, "C");
-        map.put(90, "XC");
-        map.put(50, "L");
-        map.put(40, "XL");
-        map.put(10, "X");
-        map.put(9, "IX");
-        map.put(5, "V");
-        map.put(4, "IV");
-        map.put(1, "I");
-
-        log("start");
-        Scanner scan = new Scanner(System.in);
-        Main cal = new Main();
-        while (true) {
-            String inputConsole = scan.next();
-            System.out.println("Input " + inputConsole);
-            try {
-                String res = cal.calculator(inputConsole);
-                System.out.println("Res " + res);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-
-    }
 
 
     String calculator(String in) throws Exception {
         input = in.replaceAll(" ", "");
         checkCorrect();
-        checkIsRome();
+        isRome = romeConverter.checkIsRome(input);
         int pos = findActionPosition(input);
         checkCorrectPosition(pos);
 
@@ -60,10 +32,10 @@ public class Main {
         if (isRome) {
             if (c < 0) {
                 int c1 = c * -1;
-                String res = toRoman(c1);
+                String res = romeConverter.toRoman(c1);
                 return "-" + res;
             } else {
-                return toRoman(c);
+                return romeConverter.toRoman(c);
             }
         } else {
             return c + "";
@@ -105,55 +77,13 @@ public class Main {
         }
     }
 
-
-    private String toRoman(int number) {
-
-        if (number == 0) {
-            return "" + 0;
-        }
-        int l = map.floorKey(number);
-        if (number == l) {
-            return map.get(number);
-        }
-        return map.get(l) + toRoman(number - l);
-    }
-
-
-    void checkIsRome() throws Exception {
-        if (input.charAt(0) == 'I' || input.charAt(0) == 'V' || input.charAt(0) == 'X') {
-            if (!(input.replaceAll("[\\*\\/\\+-IVX]", "").length() == 0)) {
-                throw new Exception("regex rome error" + input + " " + input.replaceAll("[\\*\\/\\+-IVX]", "*"));
-            }
-            isRome = true;
-        } else {
-            isRome = false;
-        }
-    }
-
     int getNumber(String in) throws Exception {
         if ((in.charAt(0) == 'I' || in.charAt(0) == 'V' || in.charAt(0) == 'X') && isRome) {
-
-            int result = 0;
-            int[] decimal = {10, 9, 5, 4, 1};
-            String[] roman = {"X", "IX", "V", "IV", "I"};
-
-            for (int i = 0; i < decimal.length; i++) {
-                while (in.indexOf(roman[i]) == 0) {
-                    result += decimal[i];
-                    in = in.substring(roman[i].length());
-                }
-            }
-            return result;
-
+            return romeConverter.toArabic(in);
         } else if (!isRome) {
             return Integer.parseInt(in);
         }
         throw new Exception("Incorrect number " + in + isRome);
-    }
-
-    static void log(String in) {
-        System.out.println(in);
-
     }
 
     int findActionPosition(String str) {
